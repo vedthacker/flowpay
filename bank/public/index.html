@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FlowBank</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f4f8; margin: 0; padding: 20px; color: #222; }
+    .box { max-width: 900px; margin: 0 auto; }
+    h1 { color: #0b5ed7; }
+    .card { background: white; border-radius: 12px; padding: 18px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
+    .credit { color: green; }
+    .debit { color: crimson; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>FlowBank</h1>
+    <p>This is the bank server. FlowPay calls its API to move money.</p>
+    <div class="card">
+      <h3>Accounts</h3>
+      <table>
+        <thead><tr><th>Account No</th><th>Holder</th><th>Balance</th></tr></thead>
+        <tbody id="accounts"></tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Recent Bank Transactions</h3>
+      <table>
+        <thead><tr><th>From</th><th>To</th><th>Amount</th><th>Time</th></tr></thead>
+        <tbody id="transactions"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function loadData() {
+      const a = await fetch('/api/accounts').then(r => r.json())
+      const t = await fetch('/api/transactions').then(r => r.json())
+
+      let html = ''
+      a.forEach(x => {
+        html += '<tr><td>' + x.account_no + '</td><td>' + x.holder + '</td><td>₹ ' + x.balance + '</td></tr>'
+      })
+      document.getElementById('accounts').innerHTML = html
+
+      html = ''
+      t.forEach(x => {
+        html += '<tr><td>' + x.from_account + '</td><td>' + x.to_account + '</td><td>₹ ' + x.amount + '</td><td>' + new Date(x.created_at).toLocaleString() + '</td></tr>'
+      })
+      document.getElementById('transactions').innerHTML = html
+    }
+
+    loadData()
+    setInterval(loadData, 3000)
+  </script>
+</body>
+</html>
